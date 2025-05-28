@@ -29,6 +29,8 @@ interface MaintenanceResponse {
 	allowedUsers: string[];
 }
 
+// In the future we change this to be the receiver of new data instead of constant polling
+
 @ApplyOptions<Listener.Options>({
 	event: Events.ClientReady,
 	once: true
