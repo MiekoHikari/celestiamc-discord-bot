@@ -59,7 +59,7 @@ export class UserEvent extends Listener {
 					await messageStickyListener.updateStatusMessage(client);
 				}
 			}
-		}, 10000);
+		}, 30000);
 
 		// Check if we joined the main server
 		const mainServer = await client.guilds.fetch(process.env.MAIN_GUILD_ID);
