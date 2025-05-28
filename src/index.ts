@@ -21,6 +21,11 @@ const client = new SapphireClient({
 		GatewayIntentBits.MessageContent
 	],
 	partials: [Partials.Channel],
+	api: {
+		listenOptions: {
+			port: 31885
+		}
+	}
 });
 
 const main = async () => {

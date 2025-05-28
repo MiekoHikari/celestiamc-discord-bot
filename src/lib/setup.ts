@@ -30,5 +30,6 @@ declare module '@skyra/env-utilities' {
 		MCAPI_URL: string;
 		SUBSCRIBED_CHANNEL_ID: string;
 		MAIN_GUILD_ID: string;
+		DISCORD_WEBHOOK_URL: string;
 	}
 }
