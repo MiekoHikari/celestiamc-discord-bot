@@ -27,5 +27,8 @@ colorette.createColors({ useColor: true });
 declare module '@skyra/env-utilities' {
 	interface Env {
 		OWNERS: ArrayString;
+		MCAPI_URL: string;
+		SUBSCRIBED_CHANNEL_ID: string;
+		MAIN_GUILD_ID: string;
 	}
 }
