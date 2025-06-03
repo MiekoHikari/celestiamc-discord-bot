@@ -14,18 +14,18 @@ RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
+# Copy all necessary files for building
+COPY . .
 
-# Copy source code and config files
-COPY src/ ./src/
-COPY tsconfig.json .swcrc ./
-
-# Install dependencies
+# Install all dependencies
 RUN pnpm install
 
-# Build TypeScript code
-RUN pnpm build
+# Build TypeScript code and verify the build
+RUN pnpm build && \
+    echo "Listing contents of /app:" && \
+    ls -la /app && \
+    echo "Listing contents of /app/dist:" && \
+    ls -la /app/dist || true
 
 # Production image
 FROM node:20-slim
@@ -46,12 +46,20 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Copy built files and install production dependencies
+# Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
+
+# Verify the files were copied correctly
+RUN echo "Listing contents of /app:" && \
+    ls -la /app && \
+    echo "Listing contents of /app/dist:" && \
+    ls -la /app/dist || true
+
+# Install only production dependencies
 RUN pnpm install --prod
 
 # Expose any necessary ports (if your bot uses any)
 EXPOSE 31885
 
 # Start the bot
-CMD ["pnpm", "start"] 
+CMD ["node", "dist/index.js"] 
