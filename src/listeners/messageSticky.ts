@@ -1,6 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener } from '@sapphire/framework';
 import { Client, EmbedBuilder } from 'discord.js';
+import { config } from '../config';
 
 @ApplyOptions<Listener.Options>({
 	event: Events.MessageCreate,
@@ -34,39 +35,39 @@ export class MessageStickyListener extends Listener {
 	}
 
 	public async updateStatusMessage(client: Client) {
-		const mainServer = await client.guilds.fetch(process.env.MAIN_GUILD_ID);
+		const mainServer = await client.guilds.fetch(config.discord.guild.mainId);
 		if (!mainServer) throw new Error("Main server not found");
 
-		const subscribedChannel = mainServer.channels.cache.get(process.env.SUBSCRIBED_CHANNEL_ID);
+		const subscribedChannel = mainServer.channels.cache.get(config.discord.guild.subscribedChannelId);
 		if (!subscribedChannel?.isTextBased()) throw new Error("Subscribed channel is not a text based channel");
 
 		const status = this.container.serverStatus;
 		const embed = new EmbedBuilder()
-			.setThumbnail("https://cdn3.emoji.gg/emojis/9214-allay.gif")
-			.setDescription(`# <a:minecraft:1377277509338398782> CelestiaMC
+			.setThumbnail(config.discord.embed.thumbnails.status)
+			.setDescription(`# ${config.discord.embed.icons.server.online} CelestiaMC
 				\n${status.online ? 
-					`-# Play now on \`celestia.vtuberacademy.live\`` : 
-					`<:offline:1377277505031110737> Server is offline`}
-				\n<a:onlinelive:1377277513621045278> Online: \` ${status.online ? status.players.length : 0} \` <:offline:1377277505031110737> Offline: \` ${status.offlinePlayers} \` <:lava:1377277551600205934> Total Players: \` ${status.uniquePlayers} \`
+					`-# Play now on \`${config.server.minecraft.address}\`` : 
+					`${config.discord.embed.icons.server.offline} Server is offline`}
+				\n${config.discord.embed.icons.server.playerCount} Online: \` ${status.online ? status.players.length : 0} \` ${config.discord.embed.icons.server.offline} Offline: \` ${status.offlinePlayers} \` ${config.discord.embed.icons.server.lava} Total Players: \` ${status.uniquePlayers} \`
 				${status.online && status.players.length > 0 ? `\n-# Players on the server: ${status.players.join(", ")}` : ""}`)
 			.addFields(
 				status.maintenance.enabled ?
 					status.maintenance.endCron !== "" ?
 						[{
-							name: '📌 Maintenance End:',
-							value: ` <t:${Math.floor(new Date(status.maintenance.endCron).getTime() / 1000)}:R>`,
+							name: `${config.discord.embed.icons.maintenance} Maintenance End:`,
+							value: `${status.maintenance.endCron}`,
 							inline: true
 						}]
 						: []
 					: status.maintenance.startCron !== "" ?
 						[{
-							name: '📌 Next Scheduled Maintenance',
-							value: ` <t:${Math.floor(new Date(status.maintenance.startCron).getTime() / 1000)}:R>`,
+							name: `${config.discord.embed.icons.maintenance} Next Scheduled Maintenance`,
+							value: `${status.maintenance.startCron}`,
 							inline: true
 						}]
 						: []
 			)
-			.setColor(status.maintenance.enabled ? 'Orange' : '#2f3136');
+			.setColor(status.maintenance.enabled ? config.discord.embed.colors.status.maintenance : config.discord.embed.colors.status.online);
 
 		// If we have an existing message and it hasn't scrolled too far up
 		if (this.container.lastStatusMessage.id && this.container.lastStatusMessage.messageCount < 10) {

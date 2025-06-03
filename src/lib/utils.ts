@@ -1,9 +1,7 @@
 import type { ChatInputCommandSuccessPayload, Command, ContextMenuCommandSuccessPayload, MessageCommandSuccessPayload } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
-import { send } from '@sapphire/plugin-editable-commands';
 import { cyan } from 'colorette';
-import { EmbedBuilder, type APIUser, type Guild, type Message, type User } from 'discord.js';
-import { RandomLoadingMessage } from './constants';
+import { type APIUser, type Guild, type User } from 'discord.js';
 
 /**
  * Picks a random item from an array
@@ -14,14 +12,6 @@ import { RandomLoadingMessage } from './constants';
 export function pickRandom<T>(array: readonly T[]): T {
 	const { length } = array;
 	return array[Math.floor(Math.random() * length)];
-}
-
-/**
- * Sends a loading message to the current channel
- * @param message The message data for which to send the loading message
- */
-export function sendLoadingMessage(message: Message): Promise<typeof message> {
-	return send(message, { embeds: [new EmbedBuilder().setDescription(pickRandom(RandomLoadingMessage)).setColor('#FF0000')] });
 }
 
 export function logSuccessCommand(payload: ContextMenuCommandSuccessPayload | ChatInputCommandSuccessPayload | MessageCommandSuccessPayload): void {

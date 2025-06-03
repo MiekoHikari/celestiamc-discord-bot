@@ -1,6 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener } from '@sapphire/framework';
 import { Message } from 'discord.js';
+import { config } from '../config';
 
 @ApplyOptions<Listener.Options>({
 	event: Events.MessageCreate
@@ -8,9 +9,9 @@ import { Message } from 'discord.js';
 export class UserEvent extends Listener {
 	public override async run(message: Message) {
 		if (message.author.bot) return;
-		if (message.channelId !== process.env.SUBSCRIBED_CHANNEL_ID) return;
+		if (message.channelId !== config.discord.guild.subscribedChannelId) return;
 
-		const postURL = process.env.MCAPI_URL + "chat";
+		const postURL = config.server.api.url + "chat";
 		
 		try {
 			const response = await fetch(postURL, {

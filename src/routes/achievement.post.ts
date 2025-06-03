@@ -1,6 +1,7 @@
 import { Route } from '@sapphire/plugin-api';
 import { WebhookClient } from 'discord.js';
 import { z } from 'zod';
+import { config } from '../config';
 import { ExistingPlayer } from '../lib/database';
 import { memberProfileCache } from '../lib/cache';
 
@@ -11,25 +12,26 @@ interface MinecraftRequest extends Route.Request {
 }
 
 // Define the expected payload schema
-const ChatPayloadSchema = z.object({
+const AchievementPayloadSchema = z.object({
 	payload: z.object({
-		eventType: z.literal('CHAT_MESSAGE'),
+		eventType: z.literal('ACHIEVEMENT_UNLOCKED'),
 		playerName: z.string(),
-		message: z.string(),
+		advancementId: z.string(),
+		advancementTitle: z.string(),
 		uuid: z.string()
 	})
 });
 
 export class UserRoute extends Route {
 	public override async run(request: MinecraftRequest, response: Route.Response) {
-		this.container.logger.info("Chat message received");
+		this.container.logger.info("Achievement unlocked event received");
 		try {
 			// Validate payload
-			const { payload } = ChatPayloadSchema.parse(await request.readBody());
-			this.container.logger.info(`Processing message from ${payload.playerName}`);
+			const { payload } = AchievementPayloadSchema.parse(await request.readBody());
+			this.container.logger.info(`Processing achievement for ${payload.playerName}`);
 
-			// Get webhook URL from environment
-			const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+			// Get webhook URL from config
+			const webhookUrl = config.discord.webhook.url;
 			if (!webhookUrl) {
 				return response.status(500).json({ error: 'Discord webhook not configured' });
 			}
@@ -38,7 +40,7 @@ export class UserRoute extends Route {
 			const webhookClient = new WebhookClient({ url: webhookUrl });
 
 			// Get the main guild
-			const mainGuild = await this.container.client.guilds.fetch(process.env.MAIN_GUILD_ID);
+			const mainGuild = await this.container.client.guilds.fetch(config.discord.guild.mainId);
 			if (!mainGuild) {
 				return response.status(500).json({ error: 'Main guild not found' });
 			}
@@ -64,20 +66,22 @@ export class UserRoute extends Route {
 			const displayName = member?.displayName || member?.user.displayName || payload.playerName;
 			const avatarURL = member?.displayAvatarURL() || member?.user.displayAvatarURL() || `https://mc-heads.net/avatar/${payload.uuid}`;
 
-			await webhookClient.send({ 
-				content: payload.message, 
-				username: displayName, 
-				avatarURL 
-			});
-			this.container.logger.info(`Message from ${payload.playerName} relayed to Discord`);
 
+			// Send message to Discord
+			await webhookClient.send({
+				content: `${config.discord.embed.icons.achievement} ${displayName} has earned the achievement **${payload.advancementTitle}**!`,
+				username: displayName,
+				avatarURL: avatarURL
+			});
+
+			this.container.logger.info(`Achievement announcement for ${payload.playerName} relayed to Discord`);
 			return response.status(200).json({ success: true });
 		} catch (error: unknown) {
 			if (error instanceof z.ZodError) {
 				this.container.logger.error('Invalid payload format:', error.errors.map(e => e.message).join(', '));
 				return response.status(400).json({ error: 'Invalid payload format', details: error.errors.map(e => e.message).join(', ') });
 			}
-			this.container.logger.error('Error processing chat message:', error);
+			this.container.logger.error('Error processing achievement:', error);
 			return response.status(500).json({ error: 'Internal server error' });
 		}
 	}

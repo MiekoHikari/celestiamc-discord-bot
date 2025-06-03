@@ -1,7 +1,13 @@
 import './lib/setup';
-
 import { LogLevel, SapphireClient } from '@sapphire/framework';
+import '@sapphire/plugin-api/register';
+import '@sapphire/plugin-editable-commands/register';
+import '@sapphire/plugin-logger/register';
+import '@sapphire/plugin-subcommands/register';
 import { GatewayIntentBits, Partials } from 'discord.js';
+import { connectToDatabase } from './lib/database';
+import { config } from './config';
+
 
 const client = new SapphireClient({
 	logger: {
@@ -23,13 +29,17 @@ const client = new SapphireClient({
 	partials: [Partials.Channel],
 	api: {
 		listenOptions: {
-			port: 31885
+			port: config.server.api.port
 		}
 	}
 });
 
 const main = async () => {
 	try {
+		client.logger.info('Connecting to MongoDB...');
+		await connectToDatabase();
+		client.logger.info('Connected to MongoDB');
+
 		client.logger.info('Logging in');
 		await client.login();
 		client.logger.info('logged in');

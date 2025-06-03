@@ -8,21 +8,21 @@ import '@sapphire/plugin-logger/register';
 import '@sapphire/plugin-subcommands/register';
 import { setup, type ArrayString } from '@skyra/env-utilities';
 import * as colorette from 'colorette';
-import { join } from 'path';
 import { inspect } from 'util';
-import { srcDir } from './constants';
+import {  srcDir } from './constants';
+import path from 'path';
 
 // Set default behavior to bulk overwrite
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite);
-
-// Read env var
-setup({ path: join(srcDir, '.env') });
 
 // Set default inspection depth
 inspect.defaultOptions.depth = 1;
 
 // Enable colorette
 colorette.createColors({ useColor: true });
+
+// Load environment variables from root .env
+setup({ path: path.join(srcDir, '.env') });
 
 declare module '@skyra/env-utilities' {
 	interface Env {
@@ -31,5 +31,6 @@ declare module '@skyra/env-utilities' {
 		SUBSCRIBED_CHANNEL_ID: string;
 		MAIN_GUILD_ID: string;
 		DISCORD_WEBHOOK_URL: string;
+		MONGO_URI: string;
 	}
-}
+} 
