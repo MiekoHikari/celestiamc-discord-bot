@@ -8,21 +8,21 @@ RUN apt-get update && apt-get install -y \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Install specific version of pnpm
+RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml ./
 
-# Copy source code
+# Copy source code and config files
 COPY src/ ./src/
-COPY tsconfig.json ./
+COPY tsconfig.json .swcrc ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Build TypeScript code
 RUN pnpm build
