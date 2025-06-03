@@ -1,6 +1,13 @@
 # Use Node.js LTS version as the base image
 FROM node:20-slim
 
+# Install Python and build essentials
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
