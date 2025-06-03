@@ -28,7 +28,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm build
 
 # Expose any necessary ports (if your bot uses any)
-# EXPOSE 3000
+EXPOSE 31885
 
 # Start the bot
 CMD ["pnpm", "start"] 
