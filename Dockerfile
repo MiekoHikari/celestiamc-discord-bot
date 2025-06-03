@@ -20,8 +20,9 @@ COPY . .
 # Install all dependencies
 RUN pnpm install
 
-# Build TypeScript code and verify the build
-RUN pnpm build && \
+# Clean dist directory and build TypeScript code
+RUN rm -rf dist && \
+    pnpm build && \
     echo "Listing contents of /app:" && \
     ls -la /app && \
     echo "Listing contents of /app/dist:" && \
