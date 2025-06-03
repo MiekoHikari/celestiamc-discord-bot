@@ -30,7 +30,7 @@
     "@sapphire/cli": "^1.9.3",
     "@sapphire/prettier-config": "^2.0.0",
     "@sapphire/ts-config": "^5.0.1",
-    "@swc/cli": "^0.3.10",
+    "@swc/cli": "^0.3.14",
     "@swc/core": "^1.4.8",
     "@types/node": "^22.10.7",
     "@types/ws": "^8.5.13",
